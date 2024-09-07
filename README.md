@@ -1,4 +1,6 @@
 # k8s-kubeadm
+## https://dev.to/ayaan49/kubernetes-cluster-setup-using-kubeadm-on-aws-2096
+## https://v1-29.docs.kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
 ## quick spin up kubernetes cluster -> master node , choose ec2 instance ubuntu 24.04 and in userdata 
 ### userdata for all types of nodes master or worker
 ```
@@ -47,7 +49,7 @@ chmod 700 get_helm.sh
 rm /etc/containerd/config.toml
 systemctl restart containerd
 
-
+# https://stackoverflow.com/questions/55571566/unable-to-bring-up-kubernetes-api-server
 containerd config default | tee /etc/containerd/config.toml
 sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml  
 service containerd restart
@@ -64,10 +66,12 @@ chmod a+x k9s
 mv k9s /bin/
 
 # installing the cluster and replace the kube proxy with cilium's
+# https://docs.cilium.io/en/stable/installation/k8s-install-kubeadm/
 kubeadm init --skip-phases=addon/kube-proxy
 export KUBECONFIG=/etc/kubernetes/admin.conf
 kubectl taint nodes {master-node} node-role.kubernetes.io/control-plane:NoSchedule-
 helm repo add cilium https://helm.cilium.io/
 # ip you can get from config file
+# https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free/
 helm upgrade cilium cilium/cilium --version 1.16.1 --namespace kube-system --set kubeProxyReplacement=true --set k8sServiceHost='apiserverIP' --set k8sServicePort='6443'
 ```
